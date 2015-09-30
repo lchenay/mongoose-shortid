@@ -2,7 +2,7 @@
   "name": "mongoose-shortid-nodeps",
   "description": "Short Ids for mongoose, with no dependencies",
   "author": "Leeroy Brun <leeroy.brun@gmail.com>",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "contributors": [
     {
       "name": "Jason Choy",
@@ -29,7 +29,7 @@
     "mongoose"
   ],
   "peerDependencies": {
-    "mongoose": ">= 3.5.0 < 4.1.0"
+    "mongoose": ">= 3.5.0 < 4.2.0"
   },
   "license": "MIT"
 }
