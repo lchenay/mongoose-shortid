@@ -2,7 +2,7 @@
   "name": "mongoose-shortid-nodeps",
   "description": "Short Ids for mongoose, with no dependencies",
   "author": "Leeroy Brun <leeroy.brun@gmail.com>",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "contributors": [
     {
       "name": "Jason Choy",
