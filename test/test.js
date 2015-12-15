@@ -46,7 +46,7 @@ describe('shortid', function() {
     describe('defaults', function () {
         it('should generate base 64 unique ids 7 characters long', function (done) {
 
-            var idsToGenerate = 10000;
+            var idsToGenerate = 1000;
             var ids = {};
             var i = 0;
 
@@ -86,11 +86,8 @@ describe('shortid', function() {
                         ids[doc._id] = true;
                     } else if (err.code === 11000) {
                         numDups += 1;
-                        console.log('numdups now',numDups);
                         err = null;
                     }
-                    console.error('ERROR', err);
-                    console.warn('CODE', JSON.stringify(err && err.code));
                     whilstNext(err);
                 });
             }, function(err) {
