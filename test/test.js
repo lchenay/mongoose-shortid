@@ -4,8 +4,10 @@ require('should');
 
 var async = require('async');
 var mongoose = require('mongoose');
+var shortIdModule = require('shortid');
 
 var ShortId = require('../index');
+
 
 mongoose.connect('mongodb://localhost/test');
 
@@ -16,7 +18,7 @@ var defaultSchema = new Schema({
     num: Number
 });
 
-var optionSchema = new Schema({
+var alphaSchema = new Schema({
     _id: {
         type: ShortId,
         len: 2,
@@ -26,16 +28,38 @@ var optionSchema = new Schema({
     num: Number
 });
 
+var generatorSchema = new Schema({
+    _id: {
+        type: ShortId,
+        generator: function(options, callback) {
+            callback(null, ''+Date.now());
+        }
+    },
+    num: Number
+});
+
+var shortIdModuleSchema = new Schema({
+    _id: {
+        type: ShortId,
+        generator: function(options, callback) {
+            callback(null, shortIdModule.generate());
+        }
+    },
+    num: Number
+});
+
 var DefaultDoc = mongoose.model('defaultdoc', defaultSchema);
-var OptionsDoc = mongoose.model('optionsdoc', optionSchema);
+var AlphaDoc = mongoose.model('alphadoc', alphaSchema);
+var GeneratorDoc = mongoose.model('generatordoc', generatorSchema);
+var ShortIdModuleDoc = mongoose.model('shortidmoduledoc', shortIdModuleSchema);
 
 describe('shortid', function() {
 
-    this.timeout(60000);
+    this.timeout(10000);
 
     before(function(done) {
 
-        async.each([DefaultDoc, OptionsDoc], function(model, eachNext) {
+        async.each([DefaultDoc, AlphaDoc, GeneratorDoc, ShortIdModuleDoc], function(model, eachNext) {
             model.remove(eachNext);
         }, function(err) {
             done(err);
@@ -68,7 +92,7 @@ describe('shortid', function() {
         });
     });
 
-    describe('options', function () {
+    describe('custom length and alphabet', function () {
         it('should respect len and alphabet options', function (done) {
 
             var idsToGenerate = 20;
@@ -77,7 +101,7 @@ describe('shortid', function() {
             var i = 0;
 
             async.whilst(function() {return i++ < idsToGenerate;}, function(whilstNext) {
-                var doc = new OptionsDoc({num: i});
+                var doc = new AlphaDoc({num: i});
                 doc.save(function(err, doc) {
                     if (!err) {
                         var currId = doc._id;
@@ -93,6 +117,61 @@ describe('shortid', function() {
             }, function(err) {
                 Object.keys(ids).length.should.equal(9);
                 numDups.should.equal(11);
+                done(err);
+            });
+        });
+    });
+
+    describe('custom generator', function () {
+
+        it('should use simple custom generator', function (done) {
+
+            var idsToGenerate = 20;
+            var ids = {};
+            var lastIdNum = 0;
+            var i = 0;
+
+            async.whilst(function() {return i++ < idsToGenerate;}, function(whilstNext) {
+                var doc = new GeneratorDoc({num: i});
+                doc.save(function(err, doc) {
+                    if (!err) {
+                        var currId = doc._id;
+                        currId.length.should.match(/^\d+$/);
+                        ids[doc._id] = true;
+                        var currIdNum = parseInt(currId, 10);
+                        currIdNum.should.be.greaterThan(lastIdNum);
+                        lastIdNum = currIdNum;
+                    }
+                    whilstNext(err);
+                });
+            }, function(err) {
+                Object.keys(ids).length.should.equal(idsToGenerate);
+                if (err) {
+                    console.error("ERROR", err);
+                }
+                done(err);
+            });
+        });
+
+        it('should work shortid npm module', function (done) {
+
+            var idsToGenerate = 1000;
+            var ids = {};
+            var i = 0;
+
+            async.whilst(function() {return i++ < idsToGenerate;}, function(whilstNext) {
+                var doc = new ShortIdModuleDoc({num: i});
+                doc.save(function(err, doc) {
+                    if (!err) {
+                        var currId = doc._id;
+                        currId.length.should.be.lessThan(15);
+                        currId.length.should.match(/^[\w\d\-]+$/);
+                        ids[doc._id] = true;
+                    }
+                    whilstNext(err);
+                });
+            }, function(err) {
+                Object.keys(ids).length.should.equal(idsToGenerate);
                 done(err);
             });
         });
