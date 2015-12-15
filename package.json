@@ -31,5 +31,8 @@
   "peerDependencies": {
     "mongoose": ">= 3.5.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "async": "^1.5.0"
+  }
 }
