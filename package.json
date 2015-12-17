@@ -2,7 +2,7 @@
   "name": "mongoose-shortid-nodeps",
   "description": "Short Ids for mongoose, with no dependencies",
   "author": "Leeroy Brun <leeroy.brun@gmail.com>",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "contributors": [
     {
       "name": "Jason Choy",
@@ -15,9 +15,16 @@
     {
       "name": "Leeroy Brun",
       "email": "leeroy.brun@gmail.com"
+    },
+    {
+      "name": "Aaron Silverman",
+      "email": "github@aaronplusplus.com"
     }
   ],
   "main": "./index.js",
+  "scripts": {
+    "test": "mocha"
+  },
   "directories": {
     "lib": "."
   },
@@ -30,6 +37,11 @@
   ],
   "peerDependencies": {
     "mongoose": ">= 3.5.0"
+  },
+  "devDependencies": {
+    "async": "^1.5.0",
+    "should": "^8.0.1",
+    "shortid": "^2.2.4"
   },
   "license": "MIT"
 }
