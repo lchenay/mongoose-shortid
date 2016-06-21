@@ -8,6 +8,7 @@ var shortIdModule = require('shortid');
 
 var ShortId = require('../index');
 
+var Promise = require('bluebird');
 
 mongoose.connect('mongodb://localhost/test');
 
@@ -48,10 +49,22 @@ var shortIdModuleSchema = new Schema({
     num: Number
 });
 
+var retryAlphabet = 'abcde';
+var retrySchema = new Schema({
+    _id: {
+        type: ShortId,
+        len: 1,
+        alphabet: retryAlphabet,
+        retries: 10
+    },
+    num: Number
+});
+
 var DefaultDoc = mongoose.model('defaultdoc', defaultSchema);
 var AlphaDoc = mongoose.model('alphadoc', alphaSchema);
 var GeneratorDoc = mongoose.model('generatordoc', generatorSchema);
 var ShortIdModuleDoc = mongoose.model('shortidmoduledoc', shortIdModuleSchema);
+var RetryDoc = mongoose.model('retrydoc', retrySchema);
 
 describe('shortid', function() {
 
@@ -176,4 +189,78 @@ describe('shortid', function() {
             });
         });
     });
+
+    describe('retry tests', function () {
+
+        it('should try 20 times, but only succeed 5 times', function (done) {
+
+            var idsToGenerate = 20;
+            var expectedToPass = retryAlphabet.length;
+            var ids = {};
+            var i = 0;
+
+            async.whilst(function () {
+                return i++ < idsToGenerate;
+            }, function (whilstNext) {
+                var doc = new RetryDoc({num: i});
+                doc.save(function (err, doc) {
+                    if (!err) {
+                        var currId = doc._id;
+                        currId.length.should.be.equal(1);
+                        ids[doc._id] = true;
+                    }
+                    else {
+                        // duplicate key errors are expected
+                        if (err.code == 11000) {
+                            err = null;
+                        }
+                    }
+
+                    whilstNext(err);
+                });
+            }, function (err) {
+                Object.keys(ids).length.should.equal(expectedToPass);
+                RetryDoc.remove(function () {
+                    done(err);
+                });
+            });
+        });
+
+        it('should try 20 times, but only succeed 5 times with promises', function (done) {
+
+            var idsToGenerate = 20;
+            var expectedToPass = retryAlphabet.length;
+            var ids = {};
+            var promises = [];
+
+            for (var i = 0; i < idsToGenerate; i++) {
+                var p=RetryDoc.create({num: i}).then(
+                    function(doc) {
+                        var currId = doc._id;
+                        currId.length.should.be.equal(1);
+                        ids[doc._id] = true;
+                        return doc;
+                    },
+                    function(err) {
+                        if (err.code===11000) {
+                            return {code: err.code};
+                        }
+                        return err;
+                    }
+                );
+                promises.push(p);
+            }
+
+            Promise.all(promises)
+                .then(function () {
+                    Object.keys(ids).length.should.equal(expectedToPass);
+                    RetryDoc.remove(function () {
+                        done();
+                    });
+                })
+        });
+
+    });
+
+
 });
