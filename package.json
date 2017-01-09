@@ -32,7 +32,7 @@
     "bignum": "~0.6.1"
   },
   "peerDependencies": {
-    "mongoose": ">= 3.5.0 < 4"
+    "mongoose": ">= 3.5.0 < 5"
   },
   "license": "MIT"
 }
