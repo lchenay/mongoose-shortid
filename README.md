@@ -18,7 +18,7 @@ This plugin will automatically retry inserts on a collision.
 
 ```javascript
 var mongoose = require('mongoose');
-var ShortId = require('mongoose-shortid');
+var ShortId = require('mongoose-shortid-nodeps');
 
 var personSchema = mongoose.Schema({
     _id: ShortId,
@@ -79,7 +79,7 @@ Here's an example:
 
 ```javascript
 var mongoose = require('mongoose');
-var ShortId = require('mongoose-shortid');
+var ShortId = require('mongoose-shortid-nodeps');
 
 function customIdGenerator(options, callback) {
     var desiredLength = options.len || 7;
