@@ -31,8 +31,5 @@
   "dependencies": {
     "bignum": "~0.12.5"
   },
-  "peerDependencies": {
-    "mongoose": ">= 3.5.0 < 5"
-  },
   "license": "MIT"
 }
